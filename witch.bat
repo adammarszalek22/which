@@ -1,0 +1,1 @@
+node "%~witch.js" %*
