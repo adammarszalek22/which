@@ -1,1 +1,1 @@
-node "%~witch.js" %*
+node "%~dp0witch.js" %*
