@@ -1,0 +1,2 @@
+which node
+which -a node (prints all matching pathnames)
