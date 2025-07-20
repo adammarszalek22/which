@@ -1,6 +1,6 @@
 const { Command } = require('commander');
 
-const { getCommandPaths } = require('./get-paths');
+const { getCommandPaths } = require('./command-path-retriever');
 
 const program = new Command();
 
@@ -15,13 +15,13 @@ program
 program
     .argument('<commands...>', 'list of commands which pathnames are to be returned')
     .action((inputtedCommands, options) => {
-
+        
         const yellow = '\x1b[33m';
         const end = '\x1b[0m';
 
         for (const command of inputtedCommands) {
 
-            const paths = getCommandPaths(command, options);
+            const paths = getCommandPaths(command, options.all);
 
             paths.forEach((path) => {
 
@@ -32,11 +32,11 @@ program
                 }
 
                 output += path.pathVariable;
-                
+
                 console.log(output);
 
             });
-            
+
         }
 
     })
