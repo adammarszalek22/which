@@ -5,8 +5,8 @@ const { getCommandPaths } = require('./../src/command-path-retriever.js');
 
 // In all of the below tests we temporarily create the executable files in the test/test-files folder and then delete them after testing
 
-// Using os.homedir() instead of __dirname because using __dirname was breaking Linux tests when ran on wsl
-const testFilesPath = path.join(os.homedir(), 'test-files');
+// Using os.homedir() instead of __dirname because using __dirname was breaking Linux tests when ran on wsl - it didn't correctly recognise whether files were executable or not
+const testFilesPath = isWsl ? path.join(os.homedir(), 'test-files') : path.join(__dirname, 'test-files');
 
 const windowsDescribe = (os.type() === 'Windows_NT' ? describe : describe.skip);
 const linuxDescribe = (os.type() === 'Linux' ? describe : describe.skip);
@@ -69,7 +69,7 @@ windowsDescribe('windows tests of the getCommandPaths function', () => {
 
         expect(getCommandPaths('python.exe', false, env)).toEqual([]);
 
-    });
+    });w
 
     test('should not return anything if the extensions are not in the env.PATHEXT', () => {
 
@@ -123,7 +123,7 @@ linuxDescribe('linux tests of the getCommandPaths function', () => {
 
     test('should not return anything if the extension specified is different from the one in env.PATH', () => {
 
-        createTestFiles(basicTestFiles);
+        createTestFiles(basicTestFiles, true);
 
         expect(getCommandPaths('java.sh', false, env)).toEqual([]);
 
@@ -131,19 +131,19 @@ linuxDescribe('linux tests of the getCommandPaths function', () => {
 
     test('should not return anything when the command path is not included in the env.PATH', () => {
 
-        createTestFiles(basicTestFiles);
+        createTestFiles(basicTestFiles, true);
 
         expect(getCommandPaths('python', false, env)).toEqual([]);
 
     });
 
-    // test('should not return anything when the command path included in the env.PATH is not an executable', () => {
+    test('should not return anything when the command path included in the env.PATH is not an executable', () => {
 
-    //     createTestFiles(basicTestFiles);
+        createTestFiles(basicTestFiles, false);
 
-    //     expect(getCommandPaths('java', false, env)).toEqual([]);
+        expect(getCommandPaths('java', false, env)).toEqual([]);
 
-    // });
+    });
 
 });
 
@@ -171,6 +171,23 @@ function deleteTestFilesFolder() {
 
     if (fs.existsSync(testFilesPath)) {
         fs.rmSync(testFilesPath, { recursive: true, force: true });
+    }
+
+}
+
+function isWsl() {
+
+    if (process.platform !== 'linux') return false;
+
+    try {
+
+        const content = fs.readFileSync('/proc/version', 'utf8');
+        return content.toLowerCase().includes('microsoft');
+
+    } catch {
+
+        return false;
+
     }
 
 }
