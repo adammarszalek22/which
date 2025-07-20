@@ -177,7 +177,9 @@ function deleteTestFilesFolder() {
 
 function isWsl() {
 
-    if (process.platform !== 'linux') return false;
+    if (process.platform !== 'linux') {
+        return false;
+    }
 
     try {
 
